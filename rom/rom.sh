@@ -7,16 +7,16 @@ FOLDER="${PWD}"
 OUT="${FOLDER}/out/target/product/ginkgo"
 
 # ROM
-ROMNAME="FlokoROM"                   # This is for filename
-ROM="lineage"                        # This is for build
+ROMNAME="ZenX-OS"                   # This is for filename
+ROM="zenx"                        # This is for build
 DEVICE="ginkgo"
-TARGET="user"
+TARGET="userdebug"
 VERSIONING="FLOKO_BUILD_TYPE"
-VERSION="OFFICIAL"
+VERSION="Unofficial"
 CLEANING=""                          # set "clean" for make clean, "clobber" for make clean && make clobber, don't set for dirty build
 
 # TELEGRAM
-CHATID=""                            # Group/channel chatid (use rose/userbot to get it)
+CHATID="-1001257379482"                            # Group/channel chatid (use rose/userbot to get it)
 TELEGRAM_TOKEN=""                    # Get from botfather
 
 # Export Telegram.sh
@@ -60,8 +60,13 @@ cleanup() {
 
 # Build
 build() {
-    export "${VERSIONING}"="${VERSION}"
+    # export "${VERSIONING}"="${VERSION}"
     source build/envsetup.sh
+    export CCACHE_DIR=./.ccache
+    ccache -C
+    export USE_CCACHE=1
+    export CCACHE_COMPRESS=1
+    ccache -M 50G
     lunch "${ROM}"_"${DEVICE}"-"${TARGET}"
     brunch "${DEVICE}" 2>&1 | tee log.txt
 }
@@ -74,9 +79,9 @@ check() {
         tg_cast "${ROMNAME} Build for ${DEVICE} <b>failed</b> in $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)!" \
 	        "Check log below"
         "${TELEGRAM}" -f log.txt -t "${TELEGRAM_TOKEN}" -c "${CHATID}"
-	self_destruct
+	# self_destruct
     else
-        gdrive
+        success
     fi
 }
 
@@ -87,20 +92,6 @@ self_destruct() {
     sudo shutdown -h now
 }
 
-# Gdrive
-gdrive() {
-    gd upload "$OUT"/*$VERSION*.zip | tee -a gd-up.txt
-    FILEID=$(cat gd-up.txt | tail -n 1 | awk '{ print $2 }')
-    gd share "$FILEID"
-    gd info "$FILEID" | tee -a gd-info.txt
-    MD5SUM=$(cat gd-info.txt | grep 'Md5sum' | awk '{ print $2 }')
-    NAME=$(cat gd-info.txt | grep 'Name' | awk '{ print $2 }')
-    SIZE=$(cat gd-info.txt | grep 'Size' | awk '{ print $2 }')
-    DLURL=$(cat gd-info.txt | grep 'DownloadUrl' | awk '{ print $2 }')
-    LINKBUTTON="[Download](buttonurl://${DLURL})"
-    success
-}
-
 # done
 success() {
     END=$(date +"%s")
@@ -108,22 +99,18 @@ success() {
     tg_cast "<b>ROM Build Completed Successfully</b>" \
             "Build took $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)!" \
             "------------------------------------------------" \
-            "ROM: <code>${ROMNAME}</code> ${DEVICE} ${VERSION}" \
-	    "Filename: ${NAME}" \
-	    "Date: ${BUILD_DATE}" \
-	    "Size: <code>${SIZE}</code>" \
-	    "MD5: <code>${MD5SUM}</code>" \
-            "${LINKBUTTON}"
+            "ROM: <code>${ROMNAME} for ${DEVICE}</code>" \
+            "Date: <code>${BUILD_DATE}</code>"
     "${TELEGRAM}" -f log.txt -t "${TELEGRAM_TOKEN}" -c "${CHATID}"
-    self_destruct
+    # self_destruct
 }
 
 # Let's start
-BUILD_DATE="$(date)"
+BUILD_DATE="$(date +"%Y-%m-%d %H:%M")"
 START=$(date +"%s")
 tg_cast "<b>STARTING ROM BUILD</b>" \
         "ROM: <code>${ROMNAME}</code>" \
-        "Device: ${DEVICE}" \
+        "Device: <code>${DEVICE}</code>" \
         "Version: <code>${VERSION}</code>" \
         "Build Start: <code>${BUILD_DATE}</code>"
 cleanup
