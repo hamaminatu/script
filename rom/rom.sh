@@ -67,6 +67,7 @@ build() {
     export USE_CCACHE=1
     export CCACHE_COMPRESS=1
     ccache -M 50G
+    export LC_ALL=C
     lunch "${ROM}"_"${DEVICE}"-"${TARGET}"
     brunch "${DEVICE}" 2>&1 | tee log.txt
 }
