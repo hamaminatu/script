@@ -32,7 +32,7 @@ if [ -f "$FOLDER"/.repo/local_manifests/local_manifest.xml ]; then
 fi
 
 cd "$FOLDER"/.repo
-git clone "$LOC_MANIFEST" -b "$LOC_BRANCH" --depth=1
+git clone "$LOC_MANIFEST" -b "$LOC_BRANCH"
 cd "$FOLDER"
 
 # Finnaly start syncing
