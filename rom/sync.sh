@@ -4,7 +4,7 @@
 
 # Init
 ROM=zenx
-MANIFEST="https://github.com/ZenX-OS/android_manifest.git"
+MANIFEST="https://github.com/hamaminatu/android_manifest.git"
 BRANCH=ten
 LOC_MANIFEST="https://github.com/hamaminatu/local_manifests.git"
 LOC_BRANCH=master
